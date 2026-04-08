@@ -1,0 +1,358 @@
+<odoo>
+    <template id="journal_entry_payment_voucher">
+        <main>
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <!--<t t-call="web.external_layout">-->
+                    <t t-set="entries"
+                       t-value="request.env['account.move'].sudo().search([('move_type', '=', 'entry'), ('id', '=', o.id)])"/>
+                    <div class="header o_company_#{entries.company_id.id}_layout" t-att-style="report_header_style">
+                        <h5 class="text-center">
+                            <span>
+                                <u>Payment Voucher</u>
+                            </span>
+                        </h5>
+                        <br/>
+                        <!--<br/>-->
+                        <div class="row">
+                            <div class="col-6">
+                                <p>Voucher No:
+                                    <span>
+                                        <t t-esc="o.name"/>
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="col-6">
+                                <p>Date:
+                                    <span>
+                                        <t t-esc="o.date"/>
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                        <!--<br/>-->
+                        <div class="row">
+                            <div class="col-6">
+                                <p>Jrnl ID:
+                                    <span>
+                                        <t t-esc="o.journal_id.name"/>
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="col-6">
+                                <p>Payee:
+                                    <span>
+<!--                                        <t t-esc="o.partner_id.name"/>-->
+                                        <t t-esc="o.paye"/>
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                        <!--<br/>-->
+                    </div>
+                    <div class="article o_report_layout_standard"
+                         style="background-image: url('/bulk_payment/static/img/background_image.jpg'); background-size: cover; background-position: bottom center; background-repeat: no-repeat; min-height: 620px; font-family: Lato; color: #495057;">
+                        <t t-set="total_amount" t-value="sum(line.credit for line in o.line_ids)"/>
+                        <t t-set="amount_in_words"
+                           t-value="request.env.company.currency_id.amount_to_text(abs(total_amount))"/>
+                        <t t-set="payment_values" t-value="o.invoice_payments_widget"/>
+                        <!--<t t-esc="amount_in_words"/>-->
+                        <!--<br/>-->
+                        <!--<br/>-->
+                        <!--<br/>-->
+                        <table class="table table-bordered" style="width: 100%; border: 2px solid black;">
+                            <thead>
+                                <tr>
+                                    <th>Credit Account</th>
+                                    <th>Head Of Account</th>
+                                    <th>Label</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.line_ids" t-as="line">
+                                    <t t-if="line.credit">
+                                        <tr>
+                                            <td>
+                                                <t t-esc="line.account_id.code"/>
+                                            </td>
+                                            <td>
+                                                <t t-esc="line.account_id.name"/>
+                                            </td>
+                                            <td>
+                                                <t t-esc="line.name"/>
+                                            </td>
+                                            <td class="text-end">
+                                                <t t-esc="'{:,.2f}'.format(line.credit)"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </t>
+                                <tr>
+                                    <td colspan="3">
+                                        <strong>Total</strong>
+                                    </td>
+                                    <td class="text-end">
+                                        <strong>
+                                            <t t-esc="'{:,.2f}'.format(sum(line.credit for line in o.line_ids))"/>
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <!--<br/>-->
+                        <!--<br/>-->
+                        <table class="table table-bordered" style="width: 100%; border: 2px solid black;">
+                            <thead>
+                                <tr>
+                                    <th>Debit Account</th>
+                                    <th>Head Of Account</th>
+                                    <th>Label</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.line_ids" t-as="line">
+                                    <t t-if="line.debit">
+                                        <tr>
+                                            <td>
+                                                <t t-esc="line.account_id.code"/>
+                                            </td>
+                                            <td>
+                                                <t t-esc="line.account_id.name"/>
+                                            </td>
+                                            <td>
+                                                <t t-esc="line.name"/>
+                                            </td>
+                                            <td class="text-end">
+                                                <t t-esc="'{:,.2f}'.format(line.debit)"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </t>
+                                <tr>
+                                    <td colspan="3">
+                                        <strong>Total</strong>
+                                    </td>
+                                    <td class="text-end">
+                                        <strong>
+                                            <t t-esc="'{:,.2f}'.format(sum(line.debit for line in o.line_ids))"/>
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <t t-if="payment_values">
+                            <div class="row">
+                                <div class="col-12">
+                                    <table class="table table-bordered" style="width: 100%; border: 2px solid black;">
+                                        <thead>
+                                            <tr class="text-start">
+                                                <th>Payments:</th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                            </tr>
+                                            <tr>
+                                                <th>
+                                                    <span>ACCount</span>
+                                                </th>
+                                                <th>
+                                                    <span>Partner</span>
+                                                </th>
+                                                <th>
+                                                    <span>Label</span>
+                                                </th>
+                                                <th>
+                                                    <span>Debit</span>
+                                                </th>
+                                                <th>
+                                                    <span>Credit</span>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="payment_values['content']" t-as="item">
+                                                <!--<t t-set    ="not_exchange_differenece" t-value="item.get('journal_name') != 'Exchange Difference'"-->
+                                                <t t-if="item.get('journal_name') != 'Exchange Difference'">
+                                                    <t t-set="payment_entries"
+                                                       t-value="request.env['account.move'].search([('id', '=', item.get('move_id'))])"/>
+                                                    <t t-foreach="payment_entries.line_ids" t-as="ent">
+
+                                                        <!--<t t-if="inv.move_type != 'entry'">-->
+                                                        <tr>
+                                                            <td>
+                                                                <span>
+                                                                    <t t-esc="ent.account_id.code"/>
+                                                                    <t t-esc="ent.account_id.name"/>
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                <span t-esc="ent.partner_id.name"/>
+                                                            </td>
+                                                            <td>
+                                                                <span t-esc="ent.name"/>
+                                                            </td>
+                                                            <td>
+                                                                <span t-esc="ent.debit"
+                                                                      t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                                            </td>
+                                                            <td>
+                                                                <span t-esc="ent.credit"
+                                                                      t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                </t>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <br/>
+                            <br/>
+                        </t>
+                        <div class="row">
+                            <div class="col-12">
+                                <table class="table table-bordered" style="width: 100%; border: 2px solid black;">
+                                    <tbody>
+                                        <tr class="text-start">
+                                            <th>Description:</th>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <t t-esc="o.ref"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <table class="table table-bordered" style="width: 100%; border: 2px solid black;">
+                                    <tbody>
+                                        <tr class="text-start">
+                                            <th>Amount In Words:</th>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <t t-esc="amount_in_words"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!--<div class="row">-->
+                        <!--    <div class="col-12">-->
+                        <!--        <table class="table table-bordered" style="width: 100%">-->
+                        <!--            <tbody>-->
+                        <!--                <tr class="text-start">-->
+                        <!--                    <th>Amount in words:</th>-->
+                        <!--                </tr>-->
+                        <!--                <tr>-->
+                        <!--                    <td>-->
+                        <!--                        <t t-esc="amount_in_words"/>-->
+                        <!--                    </td>-->
+                        <!--                </tr>-->
+                        <!--            </tbody>-->
+                        <!--        </table>-->
+                        <!--    </div>-->
+                        <!--</div>-->
+                        <br/>
+                        <br/>
+                        <br/>
+                        <div class="row" style="width:995px;">
+                            <div class="col-3">
+                                <p class="text-start">
+                                    Pepared By:
+                                    <small class="text-muted">________________</small>
+                                </p>
+                            </div>
+                            <div class="col-3 text-start">
+                                <p class="text-start">
+                                    Checked By:
+                                    <small class="text-muted">________________</small>
+                                </p>
+                            </div>
+                            <div class="col-3 text-start">
+                                <p class="text-start">
+                                    Approved By:
+                                    <small class="text-muted">________________</small>
+                                </p>
+                            </div>
+                            <div class="col-3 text-start">
+                                <p class="text-start">
+                                    Posted By:
+                                    <small class="text-muted">________________</small>
+                                </p>
+                            </div>
+                            <div class="col-3 text-start">
+                                <p class="text-start">
+                                    Received By:
+                                    <small class="text-muted">________________</small>
+                                </p>
+                            </div>
+                        </div>
+                        <!--<br/>-->
+                        <!--<br/>-->
+                        <!--<div class="row" style="">-->
+                        <!--    <div class="col-3">-->
+                        <!--        <hr style="height: 3px; width: 150px; margin-left: 45px;"/>-->
+                        <!--    </div>-->
+                        <!--    <div class="col-3">-->
+                        <!--        <hr style="height: 3px; width: 150px; margin-left: 45px;"/>-->
+                        <!--    </div>-->
+                        <!--    <div class="col-3">-->
+                        <!--        <hr style="height: 3px; width: 150px; margin-left: 45px;"/>-->
+                        <!--    </div>-->
+                        <!--    <div class="col-3">-->
+                        <!--        <hr style="height: 3px; width: 150px; margin-left: 35px;"/>-->
+                        <!--    </div>-->
+                        <!--</div>-->
+                        <!--<div class="row" style="margin-left: 70px; margin-right: -70px;">-->
+                        <!--    <div class="col-3">-->
+                        <!--        <span>Prepared By</span>-->
+                        <!--    </div>-->
+                        <!--    <div class="col-3">-->
+                        <!--        <span>Checked By</span>-->
+                        <!--    </div>-->
+                        <!--    <div class="col-3">-->
+                        <!--        <span>Approved By</span>-->
+                        <!--    </div>-->
+                        <!--    <div class="col-3">-->
+                        <!--        <span>Posted By</span>-->
+                        <!--    </div>-->
+                        <!--</div>-->
+                        <br/>
+                        <br/>
+                        <!--<div class="row" style="">-->
+                        <!--    <div class="col-3">-->
+                        <!--        <hr style="height: 3px; width: 150px; margin-left: 45px;"/>-->
+                        <!--    </div>-->
+                        <!--</div>-->
+                        <!--    <div class="row" style="margin-left: 70px; margin-right: -70px;">-->
+                        <!--        <div class="col-3">-->
+                        <!--            <span>Received By</span>-->
+                        <!--        </div>-->
+                        <!--    </div>-->
+                    </div>
+                    <div class="footer">
+                        <div class="text-center" style=" width: 1000px; border: 2px solid black;">
+                            <p>page:
+                                <b/>
+                                <span class="page"/>
+                                /
+                                <b/>
+                                <span class="topage"/>
+                            </p>
+                        </div>
+                    </div>
+                    <!--</t>-->
+                </t>
+            </t>
+        </main>
+    </template>
+</odoo>

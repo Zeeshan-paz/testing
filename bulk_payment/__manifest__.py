@@ -1,0 +1,25 @@
+# -*- coding: utf-8 -*-
+{
+    "name": "Bulk Payment",
+    "version": "17.0",
+    "author": "Muhammad Hasnain Khan",
+    "summary": "Bulk Payment",
+    'description': "Bulk Payment",
+    'website': "http://www.paz.com.pk/",
+    'category': 'Customization/Customization',
+    "maintainer": "Muhammad Hasnain Khan",
+    'depends': ['base', 'stock', 'account_accountant', 'account', 'sale'],
+    'data': [
+        'report/report.xml',
+        'report/payment_voucher_template.xml',
+        'report/journa_entry_payment_voucher_template.xml',
+        # 'security/security.xml',
+        'security/ir.model.access.csv',
+        'views/account_payment.xml',
+        'wizard/payment_voucher_wizard.xml',
+    ],
+    'application': False,
+    'installable': True,
+    'auto_install': False,
+    'license': 'LGPL-3',
+}
